@@ -1,4 +1,4 @@
-import { cart ,removeFromCart,updateQuantity} from "../data/cart.js";
+import { cart ,removeFromCart,updateQuantity,updateDeliveryOption} from "../data/cart.js";
 import {products} from "../data/products.js";
 import { formatCurrency } from "./utils/money.js";
 import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js'
@@ -21,7 +21,7 @@ cart.forEach((cartItem)=>{
   let deliveryOption;
 
   deliveryOptions.forEach((option)=>{
-    if(option.id === deliveryOptionId){
+    if(String(option.id) === String(deliveryOptionId)){
       deliveryOption = option;
     }
   })
@@ -71,7 +71,7 @@ cart.forEach((cartItem)=>{
                 </div>
               </div>
 
-              <div class="delivery-options">
+              <div class="delivery-options ">
                 <div class="delivery-options-title">
                   Choose a delivery option:
                 </div>  
@@ -98,7 +98,10 @@ function deliveryOptionsHtml(matchingProduct,cartItem){
       : formatCurrency(deliveryOption.priceCents);
   
    html += `
-      <div class="delivery-option">
+      <div class="delivery-option js-delivery-option"
+       data-product-id ="${matchingProduct.id}"
+      data-delivery-option-id ="${deliveryOption.id}">
+
         <input type="radio" ${isChecked ? 'checked':''}
           class="delivery-option-input"
           name="delivery-option-${matchingProduct.id}">
@@ -164,12 +167,20 @@ document.querySelectorAll('.js-update-link').forEach((link) => {
     if (newQuantity === 0) {
       removeFromCart(productId);
       container.remove();
+
     } else {
       updateQuantity(productId, newQuantity);
       quantityLabel.innerHTML = newQuantity;
       link.innerText = 'Update';
     }
     updateCartQuantity();
+  });
+});
+
+document.querySelectorAll('.js-delivery-option').forEach((element)=>{
+  element.addEventListener('click',()=>{
+    const{productId,deliveryOptionId} =element.dataset;
+    updateDeliveryOption(productId,deliveryOptionId);
   });
 });
 
